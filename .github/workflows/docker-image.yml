@@ -48,11 +48,6 @@ jobs:
           username: ${{ env.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
     
-    - name: Install oc
-      uses: redhat-actions/openshift-tools-installer@v1
-      with:
-        oc: 4
-
     - name: Log in to OpenShift
       uses: redhat-actions/oc-login@v1
       with:
