@@ -51,9 +51,9 @@ env:
 
   # 🖊️ EDIT to specify custom tags for the container image, or default tags will be generated below.
   #IMAGE_TAGS: ""
-  REGISTRY: docker.io/cloudattech
-  REGISTRY_USER: cloudattech
-  REGISTRY_PASSWORD: ${{secrets.REGISTRY_PASSWORD}}
+  IMAGE_REGISTRY: docker.io/cloudattech
+  IMAGE_REGISTRY_USER: cloudattech
+  IMAGE_REGISTRY_PASSWORD: ${{secrets.REGISTRY_PASSWORD}}
   APP_NAME: "python-app-v1"
   APP_PORT: 8080
   IMAGE_TAGS: latest${{ github.sha }}
