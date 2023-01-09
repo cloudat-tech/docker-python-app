@@ -10,7 +10,7 @@ env:
   REGISTRY: docker.io/cloudattech
   REGISTRY_USER: cloudattech
   REGISTRY_PASSWORD: ${{secrets.REGISTRY_PASSWORD}}
-  IMAGE_TAGS: "latest$(date +%s)"
+  IMAGE_TAGS: "latest"
 
 jobs:
 
