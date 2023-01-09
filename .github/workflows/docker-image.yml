@@ -11,7 +11,7 @@ env:
   REGISTRY_USER: cloudattech
   REGISTRY_PASSWORD: ${{secrets.REGISTRY_PASSWORD}}
   APP_NAME: "python-app"
-  IMAGE_TAGS: "v1"
+  IMAGE_TAGS: latest ${{ github.sha }}
 
 jobs:
 
@@ -20,9 +20,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@v2
     # Build docker image from Dockerfile 
     - name: Build the Docker image
-      uses: actions/checkout@v3
+      uses: redhat-actions/buildah-build@v2
       id: build-image
       with:
         image: ${{ env.APP_NAME }}
