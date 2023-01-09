@@ -1,0 +1,66 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  REGISTRY: docker.io/cloudattech
+  REGISTRY_USER: cloudattech
+  REGISTRY_PASSWORD: ${{secrets.REGISTRY_PASSWORD}}
+  APP_NAME: "python-app"
+  APP_PORT: 8080
+  IMAGE_TAGS: latest ${{ github.sha }}
+  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+  OPENSHIFT_NAMESPACE: "amol-tapase-dev"
+
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    # Build docker image from Dockerfile 
+    - name: Build the Docker image
+      uses: redhat-actions/buildah-build@v2
+      id: build-image
+      with:
+        image: ${{ env.APP_NAME }}
+        tags: ${{ env.IMAGE_TAGS }}
+        dockerfiles: |
+          ./Dockerfile
+      #run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+
+    # Push the built image to docker image registry 
+    - name: Push to Docker Registry
+      id: push-image
+      uses: redhat-actions/push-to-registry@v2
+      with:
+          image: ${{ env.APP_NAME }}
+          tags: ${{ env.IMAGE_TAGS }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+    
+    - name: Log in to OpenShift
+      uses: redhat-actions/oc-login@v1
+      with:
+        openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
+        openshift_token: ${{ env.OPENSHIFT_TOKEN }}
+        insecure_skip_tls_verify: true
+        namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+
+    - name: Create and Expose App
+      id: deploy-and-expose
+      uses: redhat-actions/oc-new-app@v1
+      with:
+        app_name: ${{ env.APP_NAME }}
+        image: ${{ steps.push-image.outputs.registry-path }}
+        namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+        port: ${{ env.APP_PORT }}
